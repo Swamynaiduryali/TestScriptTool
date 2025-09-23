@@ -11,6 +11,7 @@ import { TestCase } from "./Components/TestCases/TestCase";
 import { TestRun } from "./Components/TestRuns/TestRun";
 import { TestPlan } from "./Components/TestPlans/TestPlan";
 import { Report } from "./Components/Reports/Report";
+import { CreateTestCase } from "./Components/CreateTestCases.js/CreateTestCase";
 
 const menuItems = [
   {
@@ -22,6 +23,7 @@ const menuItems = [
   { name: "Test Runs", icon: "mdi:play-circle", path: "/test-runs" },
   { name: "Test Plans", icon: "mdi:file-document", path: "/test-plans" },
   { name: "Reports", icon: "mdi:chart-bar", path: "/reports" },
+  { name: "Create Test Cases", icon: "mdi:clipboard-list", path: "/create-test-cases" },
 ];
 
 export const App = () => {
@@ -41,6 +43,7 @@ export const App = () => {
             <Route path="/test-runs" element={<TestRun />} />
             <Route path="/test-plans" element={<TestPlan />} />
             <Route path="/reports" element={<Report />} />
+            <Route path="/create-test-cases" element={<CreateTestCase />} />
             <Route path="*" element={<ProjectInsight />} />{" "}
             {/* default route */}
           </Routes>

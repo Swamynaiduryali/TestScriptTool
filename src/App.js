@@ -11,7 +11,7 @@ import { TestCase } from "./Components/TestCases/TestCase";
 import { TestRun } from "./Components/TestRuns/TestRun";
 import { TestPlan } from "./Components/TestPlans/TestPlan";
 import { Report } from "./Components/Reports/Report";
-import { CreateTestCase } from "./Components/CreateTestCases.js/CreateTestCase";
+import { CreateTestCase } from "./Components/CreateTestCases/CreateTestCase";
 
 const menuItems = [
   {

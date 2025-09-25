@@ -16,14 +16,18 @@ import { CreateTestCase } from "./Components/CreateTestCases/CreateTestCase";
 const menuItems = [
   {
     name: "Project Insights",
-    icon: "mdi:view-dashboard",
+    icon: "uis:graph-bar",
     path: "/project-insights",
   },
   { name: "Test Cases", icon: "mdi:clipboard-list", path: "/test-cases" },
   { name: "Test Runs", icon: "mdi:play-circle", path: "/test-runs" },
   { name: "Test Plans", icon: "mdi:file-document", path: "/test-plans" },
   { name: "Reports", icon: "mdi:chart-bar", path: "/reports" },
-  { name: "Create Test Cases", icon: "mdi:clipboard-list", path: "/create-test-cases" },
+  {
+    name: "Create Test Cases",
+    icon: "mdi:clipboard-list",
+    path: "/create-test-cases",
+  },
 ];
 
 export const App = () => {
@@ -36,7 +40,7 @@ export const App = () => {
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
         {/* Right Panel with Routes */}
-        <div className="flex-1 p-6 overflow-auto">
+        <div className="flex-1 overflow-auto">
           <Routes>
             <Route path="/project-insights" element={<ProjectInsight />} />
             <Route path="/test-cases" element={<TestCase />} />
@@ -44,7 +48,7 @@ export const App = () => {
             <Route path="/test-plans" element={<TestPlan />} />
             <Route path="/reports" element={<Report />} />
             <Route path="/create-test-cases" element={<CreateTestCase />} />
-            <Route path="*" element={<ProjectInsight />} />{" "}
+            <Route path="*" element={<ProjectInsight />} />
             {/* default route */}
           </Routes>
         </div>

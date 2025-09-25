@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+// import { ChevronDown, ChevronRight, Search, Filter, MoreVertical, Download, Sparkles, Info, Grid } from 'lucide-react';
+import { Icon } from '@iconify/react';
 
 // Initial folder structure data
 const foldersInitial = [
@@ -97,7 +99,7 @@ function Folder({ folder, level, expandedMap, toggleExpand }) {
       )}
     </div>
   );
-}
+} 
 
 export const TestCase = () => {
   // Tab state
@@ -297,12 +299,9 @@ export const TestCase = () => {
       <div className="flex items-center justify-between border-b px-8 py-6">
         <span className="text-2xl font-bold">Test Cases</span>
         <div className="flex gap-3">
-          <button
-            title="Download"
-            className="px-4 py-2 bg-gray-100 text-xl rounded hover:bg-gray-200"
-          >
-            ⇩
-          </button>
+          <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                        <Icon icon="mdi:download" width="20" />
+                      </button>
           <button
             onClick={() => setShowModal(true)}
             className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100"
@@ -387,34 +386,20 @@ export const TestCase = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="border border-gray-300 rounded px-3 py-1 w-64 outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <button className="border border-gray-300 rounded px-2 py-1 hover:bg-gray-100 flex items-center">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="8"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      fill="none"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10l-4 4m0-4l4 4"
-                    />
-                  </svg>
+               <button
+                  className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg bg-white hover:bg-gray-50 active:bg-gray-100 transition-shadow shadow-sm"
+                  title="Filter"
+                >
+                  <Icon icon="mdi:filter" width="20" height="20" className="text-gray-700" />
                 </button>
               </div>
             </div>
             
-            <div className="flex-1 overflow-auto border rounded-md">
-              <table className="min-w-full text-sm border-collapse">
+           <div className="flex-1 border rounded-md overflow-auto max-h-[400px]">
+
+              <table className="min-w-full table-fixed text-sm border-collapse">
+
+
                 <thead className="border-b bg-gray-50 sticky top-0 z-10">
                   <tr>
                     <th className="w-10 p-2">

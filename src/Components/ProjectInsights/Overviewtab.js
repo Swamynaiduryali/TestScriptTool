@@ -1,27 +1,45 @@
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Card } from "../../CommonComponents/Card";
-import { Modalpopup } from "../../CommonComponents/Modalpopup";
-import Button from "@mui/material/Button";
+import { OverTabCreateView } from "./OverTabCreateView";
 
 export const Overviewtab = () => {
+  //viewselection
   const [isOpen, setIsOpen] = useState(false);
   const [selectedView, setSelectedView] = useState("Default Dashboard View");
-  const [open, setOpen] = React.useState(false);
+  //modalpop up
+  const [open, setOpen] = useState(false);
+  //days
+  const [nday, setDay] = useState("30D");
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
   const handleClickOpen = () => {
     setOpen(true);
   };
+
   const handleClose = () => {
     setOpen(false);
   };
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+
+  const handleCancel = () => {
+    handleClose();
+  };
+  const handleDone = () => {
+    handleClose();
   };
 
   const handleViewSelect = (viewName) => {
     setSelectedView(viewName);
     setIsOpen(false);
   };
+
+  const handleDay = (day) => {
+    setDay(day);
+  };
+
   const days = ["1D", "7D", "30D", "3M", "6M", "1Y", "2Y", "AllTime", "Custom"];
   const insightCards = [
     {
@@ -105,7 +123,7 @@ export const Overviewtab = () => {
 
                 {/* Dropdown Item 3: Create View */}
                 <div
-                  className="flex items-center px-4 py-2 cursor-pointer gap-2 text-blue-600 hover:bg-gray-100"
+                  className="flex items-center px-4 py-2 cursor-pointer gap-2 text-blue-600 hover:bg-gray-100 border-t"
                   onClick={handleClickOpen} // Just call the state-changing function here
                 >
                   <Icon icon="ph:plus" width="20" />
@@ -120,14 +138,16 @@ export const Overviewtab = () => {
               return (
                 <button
                   key={day}
-                  className={`px-2 py-1 border border-gray-300 bg-white ${
+                  className={`px-2 py-1 border border-gray-300 hover:bg-gray-200 ${
                     index === 0 ? "rounded-tl-md rounded-bl-md" : "rounded-none"
                   }
                 ${
                   index === days.length - 1
                     ? "rounded-tr-md rounded-br-md"
                     : "rounded-none"
-                }`}
+                }
+                ${nday === day ? "bg-blue-300" : "bg-white"}`}
+                  onClick={() => handleDay(day)}
                 >
                   {day}
                 </button>
@@ -158,11 +178,19 @@ export const Overviewtab = () => {
 
       <div className="m-4 flex gap-2">
         {insightCards.map(({ title, value, icon }) => {
-          return <Card name={title} icon={icon} number={value} />;
+          return <Card key={title} name={title} icon={icon} number={value} />;
         })}
       </div>
 
-      <Modalpopup open={open} onClose={handleClose} />
+      {open && (
+        <OverTabCreateView
+          open={open}
+          onClose={handleClose}
+          handleCancel={handleCancel}
+          handleClose={handleClose}
+          handleDone={handleDone}
+        />
+      )}
     </div>
   );
 };

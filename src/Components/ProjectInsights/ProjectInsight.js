@@ -3,21 +3,22 @@ import { Icon } from "@iconify/react";
 import { Overviewtab } from "./Overviewtab";
 import { AutomationHealth } from "./AutomationHealth";
 import { UniqueErrors } from "./UniqueErrors";
+import { ShareLink } from "./ShareLink";
 
 export const ProjectInsight = () => {
   const [activeTab, setActiveTab] = useState("Overview");
   const tabs = ["Overview", "Automation Health", "Unique Errors"];
-
   return (
     <div className="flex flex-col">
       <div className="bg-white">
         <div className="flex justify-between px-4 pt-3">
           <h1 className="font-bold">Project Insights</h1>
-          <div>
+          <div className="relative">
             <button className="bg-blue-500 rounded-md p-2 text-white flex items-center gap-2">
               <Icon icon={`ph:share-network-fill`} />
               <p onClick={() => alert("Clicked an share link")}>Share</p>
             </button>
+            <ShareLink />
           </div>
         </div>
 

@@ -9,7 +9,7 @@ const CreateTestCaseComponent = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(null);
   const [isEditingField, setIsEditingField] = useState(false);
   const [editMenuOpen, setEditMenuOpen] = useState(false);
-  const [newField, setNewField] = useState({ name: "", values: "" });
+  const [newField, setNewField] = useState({ name: "", type: "String", placeholder: "" });
   const [editField, setEditField] = useState({ id: null, name: "", values: [], projects: "", defaultValue: "" });
 
   const [formData, setFormData] = useState({
@@ -18,8 +18,8 @@ const CreateTestCaseComponent = () => {
     preconditions: "",
     owner: "Myself (Lucky Ind)",
     state: "Active",
-    priority: "",
-    typeOfTestCase: "",
+    priority: "Medium",
+    typeOfTestCase: "Acceptance",
     automationStatus: "Not Automated",
     tags: "",
     template: "Test Case Steps",
@@ -32,7 +32,7 @@ const CreateTestCaseComponent = () => {
   const [testCaseFields, setTestCaseFields] = useState([
     {
       id: 1,
-      name: "High",
+      name: "Priority",
       values: ["High", "Medium", "Low", "Critical"],
       projects: "All Projects",
       type: "System",
@@ -40,15 +40,27 @@ const CreateTestCaseComponent = () => {
     },
     {
       id: 2,
-      name: "Acceptance",
-      values: ["Acceptance", "Accessibility", "Compatibility"],
+      name: "Type",
+      values: [
+        "Acceptance",
+        "Accessibility",
+        "Compatibility",
+        "Destructive",
+        "Functional",
+        "Other",
+        "Performance",
+        "Regression",
+        "Security",
+        "Smoke & Sanity",
+        "Usability",
+      ],
       projects: "All Projects",
       type: "System",
       defaultValue: "Acceptance",
     },
     {
       id: 3,
-      name: "Active",
+      name: "State",
       values: ["Active", "Draft", "In Review"],
       projects: "All Projects",
       type: "System",
@@ -63,7 +75,19 @@ const CreateTestCaseComponent = () => {
     { value: "Low", label: "v Low" },
   ];
 
-  const testCaseTypes = ["Acceptance", "Accessibility", "Compatibility", "Destructive", "Functional", "Other"];
+  const testCaseTypes = [
+    "Acceptance",
+    "Accessibility",
+    "Compatibility",
+    "Destructive",
+    "Functional",
+    "Other",
+    "Performance",
+    "Regression",
+    "Security",
+    "Smoke & Sanity",
+    "Usability",
+  ];
 
   const stateOptions = [
     { value: "Active", label: "+ Active" },
@@ -110,8 +134,8 @@ const CreateTestCaseComponent = () => {
       preconditions: "",
       owner: "Myself (Lucky Ind)",
       state: "Active",
-      priority: "",
-      typeOfTestCase: "",
+      priority: testCaseFields.find((f) => f.name === "Priority")?.defaultValue || "Medium",
+      typeOfTestCase: testCaseFields.find((f) => f.name === "Type")?.defaultValue || "Acceptance",
       automationStatus: "Not Automated",
       tags: "",
       template: "Test Case Steps",
@@ -149,9 +173,9 @@ const CreateTestCaseComponent = () => {
 
   useEffect(() => {
     const findAndAttachListener = () => {
-      const buttons = document.querySelectorAll('button');
-      const createButton = Array.from(buttons).find(el =>
-        el.textContent && el.textContent.trim().toLowerCase().includes('create test')
+      const buttons = document.querySelectorAll("button");
+      const createButton = Array.from(buttons).find((el) =>
+        el.textContent && el.textContent.trim().toLowerCase().includes("create test")
       );
 
       if (createButton) {
@@ -162,12 +186,11 @@ const CreateTestCaseComponent = () => {
           setIsVisible(true);
           if (!isVisible) {
             resetForm();
-            setCurrentView("create");
           }
         };
 
-        createButton.addEventListener('click', handleClick);
-        return () => createButton.removeEventListener('click', handleClick);
+        createButton.addEventListener("click", handleClick);
+        return () => createButton.removeEventListener("click", handleClick);
       } else {
         console.log("No 'Create Test' button found in the DOM.");
       }
@@ -197,29 +220,29 @@ const CreateTestCaseComponent = () => {
     }
   };
 
-  const handleTitleChange = (e) => {
-    setEditField((prev) => ({ ...prev, name: e.target.value }));
-  };
-
-  const handleProjectChange = (e) => {
-    setEditField((prev) => ({ ...prev, projects: e.target.value }));
-  };
-
   const handleDefaultChange = (e) => {
     setEditField((prev) => ({ ...prev, defaultValue: e.target.value }));
   };
 
   const saveNewField = () => {
-    if (newField.name && newField.values) {
+    if (newField.name) {
       const newId = testCaseFields.length > 0 ? Math.max(...testCaseFields.map((f) => f.id)) + 1 : 1;
       setTestCaseFields((prev) => [
         ...prev,
-        { id: newId, name: newField.name, values: newField.values.split(",").map(v => v.trim()), projects: "All Projects", type: "Custom", defaultValue: newField.values.split(",")[0] || "" },
+        {
+          id: newId,
+          name: newField.name,
+          values: [],
+          projects: "All Projects",
+          type: newField.type,
+          defaultValue: "",
+          placeholder: newField.placeholder,
+        },
       ]);
-      setNewField({ name: "", values: "" });
+      setNewField({ name: "", type: "String", placeholder: "" });
       setIsCreatingField(false);
     } else {
-      alert("Please fill both Name and Values fields.");
+      alert("Please fill the Name field.");
     }
   };
 
@@ -227,9 +250,22 @@ const CreateTestCaseComponent = () => {
     if (editField.name && editField.values.length > 0) {
       setTestCaseFields((prev) =>
         prev.map((field) =>
-          field.id === editField.id ? { ...field, name: editField.name, values: editField.values, projects: editField.projects, defaultValue: editField.defaultValue } : field
+          field.id === editField.id
+            ? {
+                ...field,
+                name: editField.name,
+                values: editField.values,
+                projects: editField.projects,
+                defaultValue: editField.defaultValue,
+              }
+            : field
         )
       );
+      if (editField.name === "Priority") {
+        setFormData((prev) => ({ ...prev, priority: editField.defaultValue }));
+      } else if (editField.name === "Type") {
+        setFormData((prev) => ({ ...prev, typeOfTestCase: editField.defaultValue }));
+      }
       setIsEditingField(false);
     } else {
       alert("Please fill both Title and Values fields.");
@@ -245,14 +281,28 @@ const CreateTestCaseComponent = () => {
   };
 
   const handleEditClick = (field) => {
-    setEditField({ id: field.id, name: field.name, values: field.values, projects: field.projects, defaultValue: field.defaultValue, newValue: "" });
+    setEditField({
+      id: field.id,
+      name: field.name,
+      values: field.values,
+      projects: field.projects,
+      defaultValue: field.defaultValue,
+      newValue: "",
+    });
     setIsEditingField(true);
-    setIsMenuOpen(null); // Close menu after selection
+    setIsMenuOpen(null);
   };
 
   const handleConfigureClick = (field) => {
     console.log("Configure Fields clicked for:", field.name);
-    setIsMenuOpen(null); // Close menu after selection
+    setIsMenuOpen(null);
+  };
+
+  const handleProjectsClick = (value) => {
+    setEditField((prev) => ({
+      ...prev,
+      projects: prev.projects === "All Projects" ? "0 Projects" : "All Projects",
+    }));
   };
 
   const filteredFields = testCaseFields.filter(
@@ -286,11 +336,9 @@ const CreateTestCaseComponent = () => {
                 onClick={() => setCurrentView("create")}
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
-                ← Back to Create Test Case
+                Back To All Fields
               </button>
-              <h2 className="text-xl font-semibold text-gray-800">
-                Test Case Field Configuration
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-800">Test Case Field Configuration</h2>
             </div>
             <button onClick={hideForm} className="text-gray-600 hover:text-gray-800">
               ✖
@@ -327,9 +375,7 @@ const CreateTestCaseComponent = () => {
               <>
                 <div className="flex justify-between items-center mb-6">
                   <div className="relative w-96">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                      🔍
-                    </span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
                     <input
                       type="text"
                       placeholder="Search field by name"
@@ -377,10 +423,7 @@ const CreateTestCaseComponent = () => {
                             </td>
                             <td className="py-4 px-6 text-right">
                               <div className="relative">
-                                <button
-                                  onClick={() => toggleMenu(field.id)}
-                                  className="text-gray-500 hover:text-gray-700"
-                                >
+                                <button onClick={() => toggleMenu(field.id)} className="text-gray-500 hover:text-gray-700">
                                   ⋮
                                 </button>
                                 {isMenuOpen === field.id && (
@@ -419,7 +462,7 @@ const CreateTestCaseComponent = () => {
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6">
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">Create New Field</h2>
+                    <h2 className="text-xl font-semibold text-gray-800">Create Field</h2>
                     <button
                       onClick={() => setIsCreatingField(false)}
                       className="text-gray-600 hover:text-gray-800"
@@ -429,7 +472,21 @@ const CreateTestCaseComponent = () => {
                   </div>
                   <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <label className="block text-sm mb-1">Name</label>
+                      <label className="block text-sm mb-1">Type →</label>
+                      <select
+                        name="type"
+                        value={newField.type}
+                        onChange={handleNewFieldChange}
+                        className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="String">String</option>
+                        <option value="Number">Number</option>
+                        <option value="Boolean">Boolean</option>
+                        <option value="Date">Date</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm mb-1">Field Name* <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         name="name"
@@ -440,15 +497,24 @@ const CreateTestCaseComponent = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm mb-1">Values</label>
+                      <label className="block text-sm mb-1">Placeholder Text</label>
                       <input
                         type="text"
-                        name="values"
-                        value={newField.values}
+                        name="placeholder"
+                        value={newField.placeholder}
                         onChange={handleNewFieldChange}
                         className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-500"
-                        placeholder="e.g., Yes, No"
+                        placeholder="Enter placeholder text (optional)"
                       />
+                    </div>
+                    <div>
+                      <label className="block text-sm mb-1">Link Dataset to Project</label>
+                      <div className="flex items-center gap-2">
+                        <span>📁 0 Projects</span>
+                        <a href="#" className="text-blue-500 hover:text-blue-700 underline">
+                          [Link]
+                        </a>
+                      </div>
                     </div>
                   </div>
                   <div className="mt-4 flex justify-end gap-2">
@@ -460,9 +526,12 @@ const CreateTestCaseComponent = () => {
                     </button>
                     <button
                       onClick={saveNewField}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                      className={`px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 ${
+                        !newField.name ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                      disabled={!newField.name}
                     >
-                      Save
+                      Create
                     </button>
                   </div>
                 </div>
@@ -474,10 +543,7 @@ const CreateTestCaseComponent = () => {
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-800">Edit Field</h2>
                     <div className="relative">
-                      <button
-                        onClick={toggleEditMenu}
-                        className="text-gray-500 hover:text-gray-700"
-                      >
+                      <button onClick={toggleEditMenu} className="text-gray-500 hover:text-gray-700">
                         ⋮
                       </button>
                       {editMenuOpen && (
@@ -496,9 +562,9 @@ const CreateTestCaseComponent = () => {
                     <div>
                       <label className="block text-sm mb-1">Title</label>
                       <div className="flex flex-col">
-                        {["High", "Medium", "Low", "Critical"].map((option) => (
-                          <div key={option} className="flex items-center">
-                            {option}
+                        {editField.values.map((value) => (
+                          <div key={value} className="flex items-center py-1">
+                            {value}
                           </div>
                         ))}
                       </div>
@@ -506,9 +572,14 @@ const CreateTestCaseComponent = () => {
                     <div>
                       <label className="block text-sm mb-1">Projects</label>
                       <div className="flex flex-col">
-                        {Array(4).fill("All Projects").map((project, index) => (
-                          <div key={index} className="flex items-center">
-                            {project}
+                        {editField.values.map((value) => (
+                          <div key={value} className="flex items-center py-1">
+                            <span
+                              className="cursor-pointer text-blue-500 hover:text-blue-700"
+                              onClick={() => handleProjectsClick(value)}
+                            >
+                              {editField.projects === "All Projects" ? "All Projects" : "0 Projects"}
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -516,15 +587,15 @@ const CreateTestCaseComponent = () => {
                     <div>
                       <label className="block text-sm mb-1">Default</label>
                       <div className="flex flex-col gap-2">
-                        {editField.values.map((value, index) => (
-                          <div key={index} className="flex items-center">
+                        {editField.values.map((value) => (
+                          <div key={value} className="flex items-center py-1">
                             <input
                               type="radio"
                               name="defaultValue"
                               value={value}
                               checked={editField.defaultValue === value}
                               onChange={handleDefaultChange}
-                              className="mr-2"
+                              className="h-4 w-4 text-blue-500 focus:ring-blue-500"
                             />
                           </div>
                         ))}

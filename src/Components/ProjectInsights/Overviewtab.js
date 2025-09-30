@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Card } from "../../CommonComponents/Card";
 import { OverTabCreateView } from "./OverTabCreateView";
+import CalenderMUI from "../../CommonComponents/CalenderMUI";
+import { Graph } from "./Graph";
 
 export const Overviewtab = () => {
   //viewselection
@@ -11,6 +13,12 @@ export const Overviewtab = () => {
   const [open, setOpen] = useState(false);
   //days
   const [nday, setDay] = useState("30D");
+  //range
+  const [range, setRange] = useState([null, null]);
+  //calendar
+  const [isCalenderOpen, setIsCalenderOpen] = useState(false);
+  //graph
+  const [isGraph, setIsGraph] = useState(false);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -37,7 +45,18 @@ export const Overviewtab = () => {
   };
 
   const handleDay = (day) => {
+    if (day === "Custom") {
+      toggleCalender();
+    }
     setDay(day);
+  };
+
+  const toggleCalender = () => {
+    setIsCalenderOpen(!isCalenderOpen);
+  };
+
+  const handleGraph = () => {
+    setIsGraph((prev) => !prev);
   };
 
   const days = ["1D", "7D", "30D", "3M", "6M", "1Y", "2Y", "AllTime", "Custom"];
@@ -81,12 +100,12 @@ export const Overviewtab = () => {
             {isOpen && (
               <div
                 className="absolute top-full left-0 mt-1 w-max bg-white border border-gray-200 
-                           rounded-lg shadow-lg z-10"
+                           rounded-lg shadow-lg"
               >
                 {/* Dropdown Item 1: Default Dashboard View */}
                 <div
                   className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100 justify-between"
-                  onClick={() => handleViewSelect("Default Dashboard view")}
+                  onClick={() => handleViewSelect("Default Dashboard View")}
                 >
                   <div className="flex items-center gap-2">
                     <Icon icon="uis:graph-bar" width="20" />
@@ -94,7 +113,7 @@ export const Overviewtab = () => {
                       Default Dashboard View
                     </span>
                   </div>
-                  {selectedView === "Default Dashboard view" && (
+                  {selectedView === "Default Dashboard View" && (
                     <Icon
                       icon="ph:check-bold"
                       width="20"
@@ -133,32 +152,55 @@ export const Overviewtab = () => {
             )}
           </div>
 
-          <div>
-            {days.map((day, index) => {
-              return (
-                <button
-                  key={day}
-                  className={`px-2 py-1 border border-gray-300 hover:bg-gray-200 ${
-                    index === 0 ? "rounded-tl-md rounded-bl-md" : "rounded-none"
-                  }
-                ${
-                  index === days.length - 1
-                    ? "rounded-tr-md rounded-br-md"
-                    : "rounded-none"
-                }
-                ${nday === day ? "bg-blue-300" : "bg-white"}`}
-                  onClick={() => handleDay(day)}
-                >
-                  {day}
-                </button>
-              );
-            })}
+          <div className="relative">
+            <div>
+              {days.map((day, index) => {
+                // if day is "Custom" and we have selected range, show formatted range
+                const isCustom = day === "Custom";
+                const label =
+                  isCustom && range[0] && range[1]
+                    ? `${range[0].format("DD/MM/YYYY")} - ${range[1].format(
+                        "DD/MM/YYYY"
+                      )}`
+                    : day;
+
+                return (
+                  <button
+                    key={day}
+                    className={`px-2 py-1 border border-gray-300 hover:bg-gray-200 ${
+                      index === 0
+                        ? "rounded-tl-md rounded-bl-md"
+                        : "rounded-none"
+                    }
+      ${
+        index === days.length - 1
+          ? "rounded-tr-md rounded-br-md"
+          : "rounded-none"
+      }
+      ${nday === day ? "bg-blue-300" : "bg-white"}`}
+                    onClick={() => handleDay(day)}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            {nday === "Custom" && (
+              <div className="absolute top-full right-0 mt-2 text-gray-700 bg-white">
+                {isCalenderOpen && (
+                  <CalenderMUI value={range} onChange={setRange} width="45px" />
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         <div className="flex gap-2">
           <div>
-            <button className="flex items-center justify-between border border-gray-300 rounded-md px-2 py-1 bg-white">
+            <button
+              className="flex items-center justify-between border border-gray-300 rounded-md px-2 py-1 bg-white"
+              onClick={handleGraph}
+            >
               <Icon icon="mdi:widget-box-plus-outline" width="23" />
             </button>
           </div>
@@ -175,6 +217,8 @@ export const Overviewtab = () => {
           </div>
         </div>
       </div>
+
+      {isGraph && <Graph open={isGraph} onClose={handleGraph} />}
 
       <div className="m-4 flex gap-2">
         {insightCards.map(({ title, value, icon }) => {

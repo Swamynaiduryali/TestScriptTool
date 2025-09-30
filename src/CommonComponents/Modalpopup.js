@@ -26,6 +26,7 @@ export const Modalpopup = ({
   onClose,
   buttons,
   width,
+  height,
 }) => {
   return (
     <React.Fragment>
@@ -33,7 +34,14 @@ export const Modalpopup = ({
         onClose={onClose}
         aria-labelledby="customized-dialog-title"
         open={open}
-        sx={{ "& .MuiPaper-root": { width: width, maxWidth: "800px" } }} // Corrected syntax
+        sx={{
+          "& .MuiPaper-root": {
+            width: width,
+            maxWidth: "800px",
+            height: height,
+            maxHeight: "800px",
+          },
+        }} // Corrected syntax
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
           {header}

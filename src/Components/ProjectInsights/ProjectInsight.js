@@ -8,17 +8,26 @@ import { ShareLink } from "./ShareLink";
 export const ProjectInsight = () => {
   const [activeTab, setActiveTab] = useState("Overview");
   const tabs = ["Overview", "Automation Health", "Unique Errors"];
+  const [shareLinkClick, setShareLinkClick] = useState(false);
+
+  const toggleShareLinkClick = () => {
+    setShareLinkClick((prev) => !prev);
+  };
+
   return (
     <div className="flex flex-col">
       <div className="bg-white">
         <div className="flex justify-between px-4 pt-3">
           <h1 className="font-bold">Project Insights</h1>
           <div className="relative">
-            <button className="bg-blue-500 rounded-md p-2 text-white flex items-center gap-2">
+            <button
+              className="bg-blue-500 rounded-md p-2 text-white flex items-center gap-2"
+              onClick={toggleShareLinkClick}
+            >
               <Icon icon={`ph:share-network-fill`} />
-              <p onClick={() => alert("Clicked an share link")}>Share</p>
+              <p>Share</p>
             </button>
-            <ShareLink />
+            {shareLinkClick && <ShareLink />}
           </div>
         </div>
 

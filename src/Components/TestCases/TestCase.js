@@ -1,511 +1,407 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Table, MoreVertical, Edit } from 'lucide-react';
 
-// Initial folder structure data
-const foldersInitial = [
-  {
-    name: "Authentication",
-    count: "4(12)",
-    children: [
-      { name: "Login", count: "2(6)", children: [] },
-      { name: "Logout", count: "2(2)", children: [] },
-    ],
-  },
-  {
-    name: "Administration",
-    count: "0(8)",
-    children: [
-      {
-        name: "Role",
-        count: "0(7)",
-        children: [
-          { name: "Admin", count: "4(4)", children: [] },
-          { name: "Owner", count: "2(2)", children: [] },
-          { name: "Product User", count: "1(1)", children: [] },
-          { name: "API Key", count: "1(1)", children: [] },
-        ],
-      },
-    ],
-  },
-  {
-    name: "Configuration",
-    count: "1(12)",
-    children: [
-      { name: "Browsers", count: "5(5)", children: [] },
-      { name: "Devices", count: "6(6)", children: [] },
-    ],
-  },
-  {
-    name: "Users",
-    count: "0(31)",
-    children: [
-      { name: "Profile", count: "6(6)", children: [] },
-      {
-        name: "Account",
-        count: "8(25)",
-        children: [
-          { name: "Privacy", count: "2(2)", children: [] },
-          { name: "Deactivation & Deletion", count: "8(8)", children: [] },
-          { name: "Notifications", count: "4(4)", children: [] },
-          { name: "Language", count: "3(3)", children: [] },
-        ],
-      },
-    ],
-  },
-];
+  export const TestCase = () => {
+  const [activeTab, setActiveTab] = useState('repository');
+  const [showCreateFolder, setShowCreateFolder] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [showCreateTestCase, setShowCreateTestCase] = useState(false);
+  const [expandedFolders, setExpandedFolders] = useState({ Authentication: true });
+  const [selectedTestCases, setSelectedTestCases] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [folderName, setFolderName] = useState('');
+  const [folderDescription, setFolderDescription] = useState('');
+  const [selectedFolder, setSelectedFolder] = useState('Authentication');
+  const [showEditTestCase, setShowEditTestCase] = useState(false);
+  const [editingTestCase, setEditingTestCase] = useState(null);
 
-// Recursive Folder component for hierarchical display
-function Folder({ folder, level, expandedMap, toggleExpand }) {
-  const hasChildren = folder.children && folder.children.length > 0;
-  const isExpanded = expandedMap[folder.name];
-
-  return (
-    <div>
-      <div
-        className="flex items-center py-1 cursor-pointer hover:bg-gray-100 select-none"
-        style={{ paddingLeft: `${level * 20}px` }}
-        onClick={() => hasChildren && toggleExpand(folder.name)}
-      >
-        {hasChildren ? (
-          <span className="mr-2 text-gray-500 font-bold select-none">
-            {isExpanded ? "v" : ">"}
-          </span>
-        ) : (
-          <span className="mr-6" />
-        )}
-        <svg
-          className="w-4 h-4 text-blue-400 mr-2 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path d="M4 4h12v2H4V4zm0 4h12v2H4V8zm0 4h12v2H4v-2zm0 4h12v2H4v-2z" />
-        </svg>
-        <span className="flex-1">{folder.name}</span>
-        <span className="text-gray-400 ml-2">{folder.count}</span>
-      </div>
-      {hasChildren && isExpanded && (
-        <div>
-          {folder.children.map((child) => (
-            <Folder
-              key={child.name}
-              folder={child}
-              level={level + 1}
-              expandedMap={expandedMap}
-              toggleExpand={toggleExpand}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export const TestCase = () => {
-  // Tab state
-  const [tab, setTab] = useState("Repository");
-  
-  // Folder expand/collapse state
-  const [expandedMap, setExpandedMap] = useState({
-    Authentication: true,
-    Administration: true,
-    Role: false,
-    Users: true,
-    Account: false,
-  });
-
-  // Dynamic folders state (for adding new folders)
-  const [folders, setFolders] = useState(foldersInitial);
-
-  // Test cases state
   const [testCases, setTestCases] = useState([
-    { id: "TC-103", title: "testmo", priority: "Medium", owner: "Lucky Ind", tags: "--" },
-    { id: "TC-99", title: "TEtsarvind", priority: "Medium", owner: "Lucky Ind", tags: "--" },
-    {
-      id: "TC-1",
-      title: "Verify that valid user credentials result in successful authentication.",
-      priority: "Medium",
-      owner: "Lucky Ind",
-      tags: "--",
-    },
-    {
-      id: "TC-2",
-      title: "Ensure that the user is redirected to the correct landing page after successful authentication.",
-      priority: "Medium",
-      owner: "Lucky Ind",
-      tags: "--",
-    },
+    { id: 'TC-103', title: 'testmo', folder: 'Authentication' },
+    { id: 'TC-99', title: 'TEstsarvind', folder: 'Authentication' },
+    { id: 'TC-1', title: 'Verify that valid user credentials result in successful authentication.', folder: 'Authentication' },
+    { id: 'TC-2', title: 'Ensure that the user is redirected to the correct landing page after successful authenticati...', folder: 'Authentication' }
   ]);
 
-  // Search functionality
-  const [searchTerm, setSearchTerm] = useState("");
-  const filteredTestCases = testCases.filter(
-    (tc) =>
-      tc.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tc.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const folders = [
+    { name: 'Authentication', count: 4, subCount: 12, subfolders: [
+      { name: 'Login', count: 2, subCount: 6 },
+      { name: 'Logout', count: 2, subCount: 2 }
+    ]},
+    { name: 'Administration', count: 0, subCount: 8, subfolders: [
+      { name: 'Role', count: 0, subCount: 7 },
+      { name: 'API Key', count: 1, subCount: 1 }
+    ]},
+    { name: 'Configuration', count: 1, subCount: 12, subfolders: [
+      { name: 'Browsers', count: 5, subCount: 5 },
+      { name: 'Devices', count: 6, subCount: 6 }
+    ]},
+    { name: 'Users', count: 0, subCount: 31 },
+    { name: 'Usability', count: 17, subCount: 17 },
+    { name: 'Performance', count: 14, subCount: 14 },
+    { name: 'Security', count: 6, subCount: 6 }
+  ];
 
-  // Folder modal state
-  const [showFolderModal, setShowFolderModal] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
-  const [newFolderDesc, setNewFolderDesc] = useState("");
-
-  // Test case modal state
-  const [showModal, setShowModal] = useState(false);
-  const [modalForm, setModalForm] = useState({
-    id: "",
-    title: "",
-    priority: "Medium",
-    owner: "",
-    tags: "",
-    description: "",
-    preconditions: "",
-    steps: [{ step: "", result: "" }],
-  });
-  
-  const [loading, setLoading] = useState(false);
-
-  // Toggle folder expand/collapse
-  const toggleExpand = (folderName) => {
-    setExpandedMap((prev) => ({
+  const toggleFolder = (folderName) => {
+    setExpandedFolders(prev => ({
       ...prev,
-      [folderName]: !prev[folderName],
+      [folderName]: !prev[folderName]
     }));
   };
 
-  // Create new folder
   const handleCreateFolder = () => {
-    if (!newFolderName.trim()) {
-      alert("Folder name is required");
-      return;
-    }
-    setFolders([
-      ...folders,
-      { name: newFolderName.trim(), count: "0(0)", children: [], description: newFolderDesc.trim() },
-    ]);
-    setNewFolderName("");
-    setNewFolderDesc("");
-    setShowFolderModal(false);
-  };
-
-  // Handle modal form changes
-  const handleModalChange = (e) => {
-    const { name, value } = e.target;
-    setModalForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Handle test step changes
-  const handleStepChange = (index, field, value) => {
-    const newSteps = [...modalForm.steps];
-    newSteps[index][field] = value;
-    setModalForm((prev) => ({ ...prev, steps: newSteps }));
-  };
-
-  // Add new test step
-  const addStepRow = () => {
-    setModalForm((prev) => ({
-      ...prev,
-      steps: [...prev.steps, { step: "", result: "" }],
-    }));
-  };
-
-  // Remove test step
-  const removeStepRow = (index) => {
-    if (modalForm.steps.length > 1) {
-      const newSteps = modalForm.steps.filter((_, i) => i !== index);
-      setModalForm((prev) => ({ ...prev, steps: newSteps }));
+    if (folderName.trim()) {
+      alert(`Folder "${folderName}" created successfully!`);
+      setFolderName('');
+      setFolderDescription('');
+      setShowCreateFolder(false);
     }
   };
 
-  // Smart fill functionality (mock implementation)
-  const smartFill = () => {
-    if (!modalForm.title.trim()) {
-      alert("Please enter a test case title first.");
-      return;
-    }
-
-    setLoading(true);
-    // Mock AI response
-    setTimeout(() => {
-      setModalForm((prev) => ({
-        ...prev,
-        description: `Test case for verifying: ${prev.title}`,
-        preconditions: "User should have valid credentials and system should be accessible",
-      }));
-      setLoading(false);
-    }, 1500);
+  const handleImportFile = () => {
+    alert('Import functionality would be implemented here');
   };
 
-  // Generate test steps functionality (mock implementation)
-  const generateTestSteps = () => {
-    if (!modalForm.title.trim()) {
-      alert("Please enter a test case title first.");
-      return;
-    }
-
-    setLoading(true);
-    // Mock AI response
-    setTimeout(() => {
-      const generatedSteps = [
-        { step: "Navigate to the application login page", result: "Login page is displayed correctly" },
-        { step: "Enter valid username and password", result: "Credentials are accepted" },
-        { step: "Click the login button", result: "User is successfully logged in" },
-        { step: "Verify user is redirected to dashboard", result: "Dashboard page loads with user information" },
-      ];
-      setModalForm((prev) => ({ ...prev, steps: generatedSteps }));
-      setLoading(false);
-    }, 2000);
-  };
-
-  // Create test case
   const handleCreateTestCase = () => {
-    if (!modalForm.id.trim() || !modalForm.title.trim()) {
-      alert("Please fill in Test Case ID and Title");
-      return;
-    }
+    alert('Test case creation functionality would be implemented here');
+    setShowCreateTestCase(false);
+  };
 
-    if (testCases.some((tc) => tc.id === modalForm.id.trim())) {
-      alert("Test Case ID already exists");
-      return;
-    }
+  const handleFolderClick = (folderName) => {
+    setSelectedFolder(folderName);
+  };
 
-    const newTestCase = {
-      id: modalForm.id,
-      title: modalForm.title,
-      priority: modalForm.priority,
-      owner: modalForm.owner || "Unassigned",
-      tags: modalForm.tags || "--",
-    };
+  const handleEditTestCase = (testCase) => {
+    setEditingTestCase(testCase);
+    setShowEditTestCase(true);
+  };
 
-    setTestCases((prev) => [...prev, newTestCase]);
+  const handleUpdateTestCase = () => {
+    alert('Test case updated successfully!');
+    setShowEditTestCase(false);
+    setEditingTestCase(null);
+  };
 
-    // Reset form and close modal
-    setModalForm({
-      id: "",
-      title: "",
-      priority: "Medium",
-      owner: "",
-      tags: "",
-      description: "",
-      preconditions: "",
-      steps: [{ step: "", result: "" }],
-    });
-    setShowModal(false);
+  const getFilteredTestCases = () => {
+    return testCases.filter(tc => tc.folder === selectedFolder);
+  };
+
+  const getFolderEmptyState = () => {
+    const folder = folders.find(f => f.name === selectedFolder);
+    if (!folder) return null;
+    
+    return folder.count === 0;
   };
 
   return (
-    <div className="flex flex-col h-screen font-sans bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="flex items-center justify-between border-b px-8 py-6">
-        <span className="text-2xl font-bold">Test Cases</span>
-        <div className="flex gap-3">
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-gray-900">Test Cases</h1>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setShowImport(true)}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+            >
+              <Download size={20} />
+            </button>
+            <button 
+              onClick={() => setShowCreateTestCase(true)}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Create Test Case
+            </button>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+              <span className="text-xl">✨</span>
+              Generate with AI
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-8 mt-6">
           <button
-            title="Download"
-            className="px-4 py-2 bg-gray-100 text-xl rounded hover:bg-gray-200"
+            onClick={() => setActiveTab('repository')}
+            className={`pb-3 font-medium ${
+              activeTab === 'repository'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
-            ⇩
+            Repository
           </button>
           <button
-            onClick={() => setShowModal(true)}
-            className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-100"
+            onClick={() => setActiveTab('shared-steps')}
+            className={`pb-3 font-medium ${
+              activeTab === 'shared-steps'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
-            Create Test Case
+            Shared Steps
+          </button>
+          <button
+            onClick={() => setActiveTab('datasets')}
+            className={`pb-3 font-medium ${
+              activeTab === 'datasets'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Datasets
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b px-8 text-sm font-medium text-gray-500">
-        {["Repository", "Shared Steps", "Datasets"].map((t) => (
-          <div
-            key={t}
-            className={`mr-6 cursor-pointer py-3 ${
-              tab === t ? "border-b-2 border-blue-600 text-blue-600" : ""
-            }`}
-            onClick={() => setTab(t)}
-          >
-            {t}
-          </div>
-        ))}
-      </div>
-
-      {/* Main Content */}
-      {tab === "Repository" && (
-        <div className="flex flex-1 overflow-hidden px-8">
-          {/* Left sidebar */}
-          <div className="w-72 border-r flex flex-col h-full">
-            <div className="flex items-center justify-between px-2 text-sm font-semibold text-gray-700 mt-4 mb-2">
-              <span>Folders</span>
-              <button
-                onClick={() => setShowFolderModal(true)}
-                className="p-1 border rounded hover:bg-gray-100"
-                title="Create Folder"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+      {/* Repository View */}
+      {activeTab === 'repository' && (
+        <div className="flex">
+          {/* Sidebar */}
+          <div className="w-96 bg-white border-r border-gray-200 p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold text-gray-700">Folders</h2>
+                <button 
+                  onClick={() => setShowCreateFolder(true)}
+                  className="p-1 hover:bg-gray-100 rounded"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </button>
+                  <Plus size={18} />
+                </button>
+              </div>
             </div>
-            <div className="text-xs text-gray-400 font-light mb-4 pl-2">
-              Sort by: Custom ({folders.length})
+
+            <div className="mb-4 text-sm text-gray-600 flex items-center gap-2">
+              <span>Sort by: Custom</span>
+              <span className="text-gray-400">(100)</span>
             </div>
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 pr-1">
-              {folders.map((folder) => (
-                <Folder
-                  key={folder.name}
-                  folder={folder}
-                  level={1}
-                  expandedMap={expandedMap}
-                  toggleExpand={toggleExpand}
-                />
+
+            {/* Folder Tree */}
+            <div className="space-y-1">
+              {folders.map((folder, idx) => (
+                <div key={idx}>
+                  <div 
+                    className={`flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer ${
+                      selectedFolder === folder.name ? 'bg-blue-50' : ''
+                    }`}
+                  >
+                    <div 
+                      className="flex items-center gap-2 flex-1" 
+                      onClick={() => {
+                        toggleFolder(folder.name);
+                        handleFolderClick(folder.name);
+                      }}
+                    >
+                      {folder.subfolders ? (
+                        expandedFolders[folder.name] ? <ChevronDown size={16} /> : <ChevronRight size={16} />
+                      ) : (
+                        <div className="w-4" />
+                      )}
+                      <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                      <span className="text-sm font-medium">{folder.name}</span>
+                    </div>
+                    <span className="text-sm text-gray-500">{folder.count}({folder.subCount})</span>
+                  </div>
+                  
+                  {folder.subfolders && expandedFolders[folder.name] && (
+                    <div className="ml-6 space-y-1 mt-1">
+                      {folder.subfolders.map((subfolder, subIdx) => (
+                        <div 
+                          key={subIdx} 
+                          className={`flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer ${
+                            selectedFolder === subfolder.name ? 'bg-blue-50' : ''
+                          }`}
+                          onClick={() => handleFolderClick(subfolder.name)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-4" />
+                            <div className="w-4 h-4 bg-blue-400 rounded"></div>
+                            <span className="text-sm">{subfolder.name}</span>
+                          </div>
+                          <span className="text-sm text-gray-500">{subfolder.count}({subfolder.subCount})</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Middle section - Test Cases */}
-          <div className="flex-1 flex flex-col p-6 overflow-hidden">
-            <div className="flex justify-between items-center mb-4 text-sm text-gray-700">
-              <div>
-                <span className="font-semibold mr-1">Authentication</span>
-                <span className="cursor-help" title="Information">
-                  ℹ
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
+          {/* Main Content */}
+          <div className="flex-1 p-6">
+            {/* Search and Filter Bar */}
+            <div className="flex gap-3 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-3 text-gray-400" size={20} />
                 <input
                   type="text"
                   placeholder="Search by Test Case ID or Title"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border border-gray-300 rounded px-3 py-1 w-64 outline-none focus:ring-2 focus:ring-blue-500"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <button className="border border-gray-300 rounded px-2 py-1 hover:bg-gray-100 flex items-center">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="8"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      fill="none"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10l-4 4m0-4l4 4"
-                    />
-                  </svg>
+              </div>
+              <button 
+                onClick={() => setShowFilter(true)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                <Filter size={20} />
+              </button>
+            </div>
+
+            {/* Test Cases Header */}
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold">{selectedFolder}</h3>
+                  <Info size={16} className="text-gray-400" />
+                </div>
+              </div>
+
+              {/* Empty State or Test Cases List */}
+              {getFolderEmptyState() ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Add Test Cases</h3>
+                  <p className="text-gray-600 mb-6">You can create test cases by entering details below</p>
+                  
+                  {/* AI Input at Empty State */}
+                  <div className="w-full max-w-3xl bg-white rounded-lg border-2 border-blue-500 p-4 mb-6">
+                    <div className="flex items-center gap-3">
+                      <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option>AI steps</option>
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Enter test case title and press ⏎ to generate test case deta"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                        <span>✨</span>
+                        Create
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+                      <span>✨</span>
+                      Generate with AI
+                    </button>
+                    <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      Quick Import
+                    </button>
+                    <button 
+                      onClick={() => setShowImport(true)}
+                      className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <Download size={20} />
+                      Import Test Cases
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Table Header */}
+                  <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-gray-200 text-sm font-medium text-gray-600">
+                    <div className="col-span-1">
+                      <input type="checkbox" className="rounded" />
+                    </div>
+                    <div className="col-span-2">ID</div>
+                    <div className="col-span-8">TITLE</div>
+                    <div className="col-span-1">P</div>
+                  </div>
+
+                  {/* Test Cases List */}
+                  {getFilteredTestCases().map((testCase) => (
+                    <div key={testCase.id} className="grid grid-cols-12 gap-4 px-4 py-4 border-b border-gray-100 hover:bg-gray-50 items-center">
+                      <div className="col-span-1">
+                        <input type="checkbox" className="rounded" />
+                      </div>
+                      <div className="col-span-2 text-sm font-medium">{testCase.id}</div>
+                      <div className="col-span-8 text-sm text-blue-600 hover:underline cursor-pointer">
+                        {testCase.title}
+                      </div>
+                      <div className="col-span-1 flex items-center gap-2">
+                        <button 
+                          onClick={() => handleEditTestCase(testCase)}
+                          className="p-1 hover:bg-gray-200 rounded"
+                        >
+                          <Edit size={16} className="text-gray-500" />
+                        </button>
+                        <button className="p-1 hover:bg-gray-200 rounded">
+                          <MoreVertical size={16} className="text-gray-500" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+
+            {/* AI Input Bar */}
+            <div className="mt-6 bg-white rounded-lg border border-gray-300 p-4">
+              <div className="flex items-center gap-3">
+                <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                  <option>AI steps</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Enter test case title and press ⏎ to generate test case details using AI"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                  <span>✨</span>
+                  Create
                 </button>
               </div>
-            </div>
-            
-            <div className="flex-1 overflow-auto border rounded-md">
-              <table className="min-w-full text-sm border-collapse">
-                <thead className="border-b bg-gray-50 sticky top-0 z-10">
-                  <tr>
-                    <th className="w-10 p-2">
-                      <input type="checkbox" />
-                    </th>
-                    <th className="w-24 p-2 text-left">ID</th>
-                    <th className="flex-1 p-2 text-left">TITLE</th>
-                    <th className="w-32 p-2 text-left">PRIORITY</th>
-                    <th className="w-36 p-2 text-left">OWNER</th>
-                    <th className="w-24 p-2 text-left">TAGS</th>
-                    <th className="w-10 p-2"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredTestCases.map((tc) => (
-                    <tr
-                      key={tc.id}
-                      className="border-b hover:bg-gray-50 cursor-pointer"
-                    >
-                      <td className="p-2">
-                        <input type="checkbox" />
-                      </td>
-                      <td className="p-2">{tc.id}</td>
-                      <td className="p-2 font-semibold">{tc.title}</td>
-                      <td className="p-2 text-blue-500">{tc.priority}</td>
-                      <td className="p-2">{tc.owner}</td>
-                      <td className="p-2">{tc.tags}</td>
-                      <td className="p-2">
-                        <button className="text-gray-400 hover:text-gray-600">
-                          ⋮
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredTestCases.length === 0 && (
-                    <tr>
-                      <td colSpan="7" className="p-4 text-center text-gray-400">
-                        No test cases found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
       )}
 
-      {/* Other tabs content */}
-      {tab === "Shared Steps" && (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-full max-w-xl mx-auto bg-white border rounded-lg py-16 flex flex-col items-center">
-            <div className="flex items-center justify-center mb-4">
-              <span className="text-4xl text-gray-400">ⓘ</span>
+      {/* Shared Steps View */}
+      {activeTab === 'shared-steps' && (
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full mb-4">
+              <Info size={32} className="text-gray-500" />
             </div>
-            <div className="text-lg font-semibold text-gray-700 mb-1">
-              No Shared Steps Available
-            </div>
-            <div className="text-gray-600 text-sm text-center mb-7">
-              Create a shared step by clicking below and save time by reusing it
-              across multiple test cases & runs.
-            </div>
-            <button className="px-6 py-2 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700">
+            <h3 className="text-xl font-semibold mb-2">No Shared Steps Available</h3>
+            <p className="text-gray-600 mb-6">
+              Create a shared step by clicking below and save time by reusing it across multiple test cases & runs.
+            </p>
+            <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               Create Shared Step
             </button>
           </div>
         </div>
       )}
 
-      {tab === "Datasets" && (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-full max-w-xl mx-auto bg-white border rounded-lg py-16 flex flex-col items-center">
-            <div className="flex items-center justify-center mb-4">
-              <svg width={38} height={38} fill="none" stroke="green" strokeWidth={2} viewBox="0 0 24 24">
-                <rect x="2" y="6" width="20" height="12" rx="2" stroke="green" strokeWidth={2} fill="none" />
-                <line x1="2" y1="10" x2="22" y2="10" stroke="green" strokeWidth={2} />
-                <line x1="2" y1="14" x2="22" y2="14" stroke="green" strokeWidth={2} />
-              </svg>
+      {/* Datasets View */}
+      {activeTab === 'datasets' && (
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-teal-100 rounded-full mb-4">
+              <Table size={32} className="text-teal-600" />
             </div>
-            <div className="text-lg font-semibold text-gray-700 mb-1">
-              Unlock Datasets with a pro plan
-            </div>
-            <div className="text-gray-600 text-sm text-center mb-8">
-              Upgrade now to simplify repetitive test creation and maximize
-              coverage with reusable test data.
-            </div>
-            <div className="flex gap-4">
-              <button className="px-6 py-2 bg-white border border-gray-400 rounded text-gray-700 font-semibold hover:bg-gray-100">
+            <h3 className="text-xl font-semibold mb-2">Unlock Datasets with a pro plan</h3>
+            <p className="text-gray-600 mb-6">
+              Upgrade now to simplify repetitive test creation and maximize coverage with reusable test data.
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
                 Learn More
               </button>
-              <button className="px-6 py-2 bg-green-600 text-white rounded font-semibold hover:bg-green-700">
+              <button className="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
                 Upgrade Now
               </button>
             </div>
@@ -513,50 +409,55 @@ export const TestCase = () => {
         </div>
       )}
 
-      {/* Folder Creation Modal */}
-      {showFolderModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg w-[400px] p-6">
-            <div className="text-xl font-bold mb-4 flex justify-between items-center">
-              <span>Create Folder</span>
-              <button
-                onClick={() => setShowFolderModal(false)}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                ×
+      {/* Create Folder Modal */}
+      {showCreateFolder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">Create Folder</h2>
+              <button onClick={() => setShowCreateFolder(false)}>
+                <X size={24} className="text-gray-400 hover:text-gray-600" />
               </button>
             </div>
-            <div className="mb-3">
-              <label className="block font-medium mb-2">
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
                 Folder name <span className="text-red-500">*</span>
               </label>
               <input
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                className="border w-full p-2 rounded mb-1"
+                type="text"
                 placeholder="Enter folder name"
+                value={folderName}
+                onChange={(e) => setFolderName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <div className="flex items-center gap-1 mt-1 text-sm text-gray-500">
+                <span>📁</span>
+                <span>/</span>
+              </div>
             </div>
-            <div className="mb-3">
-              <label className="block font-medium mb-2">Description</label>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2">Description</label>
               <textarea
-                value={newFolderDesc}
-                onChange={(e) => setNewFolderDesc(e.target.value)}
-                className="border w-full p-2 rounded"
                 placeholder="Enter folder description/notes"
-                rows={3}
+                value={folderDescription}
+                onChange={(e) => setFolderDescription(e.target.value)}
+                rows={6}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="flex justify-end space-x-3 mt-4">
+
+            <div className="flex justify-end gap-3">
               <button
-                onClick={() => setShowFolderModal(false)}
-                className="px-4 py-2 rounded border hover:bg-gray-100"
+                onClick={() => setShowCreateFolder(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateFolder}
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Create Folder
               </button>
@@ -565,223 +466,458 @@ export const TestCase = () => {
         </div>
       )}
 
-      {/* Test Case Creation Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4 overflow-auto">
-          <div className="bg-white rounded-lg p-6 max-w-5xl w-full shadow-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold">Create Test Case</h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-500 hover:text-gray-800 text-2xl"
-              >
-                ×
+      {/* Filter Modal */}
+      {showFilter && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-md h-5/6 flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold">Filter Test Cases</h2>
+              <button onClick={() => setShowFilter(false)}>
+                <X size={24} className="text-gray-400 hover:text-gray-600" />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left column - Main form */}
-              <div className="lg:col-span-2 space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Test Case ID <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    name="id"
-                    type="text"
-                    value={modalForm.id}
-                    onChange={handleModalChange}
-                    className="block w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                    disabled={loading}
-                    placeholder="e.g., TC-001"
-                  />
-                </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Folder</label>
+                <button className="w-full px-3 py-2 border border-gray-300 rounded-lg text-left text-gray-500 flex items-center gap-2">
+                  <span>📁</span>
+                  <span>0 folder selected</span>
+                </button>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Title <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    name="title"
-                    type="text"
-                    value={modalForm.title}
-                    onChange={handleModalChange}
-                    className="block w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                    disabled={loading}
-                    placeholder="Brief description of what you're testing"
-                  />
-                </div>
+              <div>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                  <option>Match all filters</option>
+                </select>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    rows={3}
-                    value={modalForm.description}
-                    onChange={handleModalChange}
-                    className="block w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                    disabled={loading}
-                    placeholder="Detailed description of the test case"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Preconditions
-                  </label>
-                  <textarea
-                    name="preconditions"
-                    rows={3}
-                    value={modalForm.preconditions}
-                    onChange={handleModalChange}
-                    className="block w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                    disabled={loading}
-                    placeholder="What needs to be set up before running this test"
-                  />
-                </div>
-
-                <div className="flex space-x-2">
-                  <button
-                    onClick={smartFill}
-                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 disabled:bg-gray-400"
-                    disabled={loading}
-                  >
-                    {loading ? "Loading..." : "Smart Fill"}
-                  </button>
-                  <button
-                    onClick={generateTestSteps}
-                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
-                    disabled={loading}
-                  >
-                    {loading ? "Generating..." : "Generate Steps"}
-                  </button>
-                </div>
-
-                {/* Test Steps */}
-                <div>
-                  <h3 className="text-lg font-medium text-gray-800 mb-3">
-                    Test Steps and Expected Results
-                  </h3>
-                  <div className="space-y-4">
-                    {modalForm.steps.map((step, idx) => (
-                      <div key={idx} className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">
-                            Step {idx + 1}
-                          </label>
-                          <textarea
-                            rows={2}
-                            className="block w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                            placeholder="Describe the action to take"
-                            value={step.step}
-                            onChange={(e) => handleStepChange(idx, "step", e.target.value)}
-                            disabled={loading}
-                          />
-                        </div>
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <label className="block text-xs font-medium text-gray-600">
-                              Expected Result
-                            </label>
-                            {modalForm.steps.length > 1 && (
-                              <button
-                                onClick={() => removeStepRow(idx)}
-                                className="text-red-500 hover:text-red-700 text-sm"
-                                disabled={loading}
-                              >
-                                Remove
-                              </button>
-                            )}
-                          </div>
-                          <textarea
-                            rows={2}
-                            className="block w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                            placeholder="What should happen"
-                            value={step.result}
-                            onChange={(e) => handleStepChange(idx, "result", e.target.value)}
-                            disabled={loading}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    onClick={addStepRow}
-                    className="mt-2 text-sm text-blue-600 hover:underline"
-                    disabled={loading}
-                  >
-                    + Add Another Step
-                  </button>
+              <div>
+                <label className="block text-sm font-medium mb-2">State</label>
+                <div className="flex gap-2">
+                  <button className="px-3 py-2 border border-gray-300 rounded-lg">≠</button>
+                  <select className="flex-1 px-3 py-2 border border-gray-300 rounded-lg">
+                    <option>Select Options</option>
+                  </select>
                 </div>
               </div>
 
-              {/* Right column - Metadata */}
-              <div className="space-y-6 p-4 border rounded-md bg-gray-50">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Priority
-                  </label>
-                  <select
-                    name="priority"
-                    value={modalForm.priority}
-                    onChange={handleModalChange}
-                    disabled={loading}
-                    className="block w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                  >
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                    <option>Critical</option>
+              <div>
+                <label className="block text-sm font-medium mb-2">Priority</label>
+                <div className="flex gap-2">
+                  <button className="px-3 py-2 border border-gray-300 rounded-lg">≠</button>
+                  <select className="flex-1 px-3 py-2 border border-gray-300 rounded-lg">
+                    <option>Select Options</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Owner
-                  </label>
-                  <input
-                    name="owner"
-                    type="text"
-                    value={modalForm.owner}
-                    onChange={handleModalChange}
-                    disabled={loading}
-                    className="block w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                    placeholder="Test case owner"
-                  />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Automation Status</label>
+                <div className="flex gap-2">
+                  <button className="px-3 py-2 border border-gray-300 rounded-lg">≠</button>
+                  <select className="flex-1 px-3 py-2 border border-gray-300 rounded-lg">
+                    <option>Select Options</option>
+                  </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tags
-                  </label>
-                  <input
-                    name="tags"
-                    type="text"
-                    value={modalForm.tags}
-                    onChange={handleModalChange}
-                    disabled={loading}
-                    className="block w-full rounded-md border border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-                    placeholder="Comma-separated tags"
-                  />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Type Of Test Case</label>
+                <div className="flex gap-2">
+                  <button className="px-3 py-2 border border-gray-300 rounded-lg">≠</button>
+                  <select className="flex-1 px-3 py-2 border border-gray-300 rounded-lg">
+                    <option>Select Options</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Tags</label>
+                <div className="flex gap-2">
+                  <button className="px-3 py-2 border border-gray-300 rounded-lg">≠</button>
+                  <select className="flex-1 px-3 py-2 border border-gray-300 rounded-lg">
+                    <option>Select Options</option>
+                  </select>
                 </div>
               </div>
             </div>
 
-            {/* Modal Actions */}
-            <div className="mt-6 flex justify-end space-x-4">
+            <div className="flex justify-end gap-3 p-4 border-t border-gray-200">
               <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
-                disabled={loading}
+                onClick={() => setShowFilter(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal */}
+      {showImport && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="bg-white rounded-lg w-full max-w-5xl m-4">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                <span>Test Cases</span>
+                <ChevronRight size={16} />
+                <span className="font-medium">Import</span>
+              </div>
+              <h2 className="text-2xl font-bold">Import Test Cases</h2>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Info Banner */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex gap-3">
+                  <Info size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-medium text-blue-900 mb-1">
+                      Import test cases in both .feature and .csv formats
+                    </h3>
+                    <p className="text-sm text-blue-700">
+                      Easily import both BDD test cases using feature file(s) and traditional test cases into your repository using CSV.
+                    </p>
+                    <div className="flex gap-3 mt-3">
+                      <button className="text-sm text-blue-700 font-medium hover:underline">
+                        Read Documentation
+                      </button>
+                      <button className="text-sm text-blue-700 font-medium hover:underline">
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Generation Section */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex gap-6 items-center">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold mb-2">Let AI do the heavy lifting instead</h3>
+                    <p className="text-gray-600">
+                      Save time by generating test cases directly from a requirement document or a simple prompt using AI
+                    </p>
+                    <div className="flex gap-3 mt-4">
+                      <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+                        <span>🔗</span>
+                        Try Now
+                      </button>
+                      <button className="px-4 py-2 text-gray-600 hover:text-gray-900">
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <img src="/api/placeholder/300/200" alt="AI Demo" className="rounded-lg" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload Section */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Upload .csv or .feature file</h3>
+                  <button 
+                    onClick={handleImportFile}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Proceed
+                  </button>
+                </div>
+                
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+                  <p className="text-gray-600 mb-4">Upload File:</p>
+                  <input
+                    type="file"
+                    accept=".csv,.feature"
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="inline-block px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 cursor-pointer"
+                  >
+                    Choose File
+                  </label>
+                  <p className="text-sm text-gray-500 mt-2">or drag and drop file here</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end p-6 border-t border-gray-200">
+              <button
+                onClick={() => setShowImport(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Test Case Modal */}
+      {showCreateTestCase && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">Create Test Case</h2>
+              <button onClick={() => setShowCreateTestCase(false)}>
+                <X size={24} className="text-gray-400 hover:text-gray-600" />
+              </button>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Test Case Title *</label>
+                <input
+                  type="text"
+                  placeholder="Enter test case title"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Folder</label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                  <option>Select Folder</option>
+                  <option>Authentication</option>
+                  <option>Administration</option>
+                  <option>Configuration</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Description</label>
+                <textarea
+                  placeholder="Enter test case description"
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowCreateTestCase(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateTestCase}
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400"
-                disabled={loading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                {loading ? "Creating..." : "Save Test Case"}
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Test Case Modal */}
+      {showEditTestCase && editingTestCase && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-6xl h-5/6 flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold">Edit Test Case</h2>
+              <button onClick={() => setShowEditTestCase(false)}>
+                <X size={24} className="text-gray-400 hover:text-gray-600" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              <div className="grid grid-cols-12 gap-6 p-6">
+                {/* Left Column - Main Content */}
+                <div className="col-span-8 space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Title <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        defaultValue={editingTestCase.title}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <button className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200">
+                        <span>✨</span>
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                      <span>📁</span>
+                      <span>Authentication</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium mb-2">Template</label>
+                      <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option>Test Case Steps</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Description</label>
+                    <textarea
+                      placeholder="Write in brief about the test"
+                      rows={6}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Preconditions</label>
+                    <textarea
+                      placeholder="Define any preconditions about the test"
+                      rows={6}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Steps and Results</h3>
+                    <div className="border border-gray-200 rounded-lg">
+                      <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 border-b border-gray-200">
+                        <div className="col-span-1 text-sm font-medium">#</div>
+                        <div className="col-span-1 text-sm font-medium">1</div>
+                        <div className="col-span-5 text-sm font-medium">Step</div>
+                        <div className="col-span-5 text-sm font-medium">Result</div>
+                      </div>
+                      <div className="p-4">
+                        <div className="grid grid-cols-12 gap-4">
+                          <div className="col-span-1 flex items-center justify-center">
+                            <div className="flex flex-col gap-1">
+                              <button className="text-gray-400 hover:text-gray-600">⋮⋮</button>
+                            </div>
+                          </div>
+                          <div className="col-span-1 flex items-center text-sm text-gray-600">1</div>
+                          <div className="col-span-5">
+                            <input
+                              type="text"
+                              placeholder="Enter step description"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                          <div className="col-span-5">
+                            <input
+                              type="text"
+                              placeholder="Enter expected result"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column - Test Case Fields */}
+                <div className="col-span-4 space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold">Test Case Fields</h3>
+                    <button className="text-blue-600 text-sm flex items-center gap-1">
+                      <span>⚙</span>
+                      Configure
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Owner <span className="text-red-500">*</span>
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                      <option>Myself (Lucky Ind)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                      <option>✓ Active</option>
+                      <option>Draft</option>
+                      <option>Deprecated</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Priority <span className="text-red-500">*</span>
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                      <option>— Medium</option>
+                      <option>High</option>
+                      <option>Low</option>
+                      <option>Critical</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Type of Test Case <span className="text-red-500">*</span>
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                      <option>Other</option>
+                      <option>Functional</option>
+                      <option>Performance</option>
+                      <option>Security</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Automation Status <span className="text-red-500">*</span>
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                      <option>Not Automated</option>
+                      <option>Automated</option>
+                      <option>Planned</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Tags <Info size={14} className="inline ml-1 text-gray-400" />
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Add tags and hit ⏎"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200">
+                    <button className="w-full text-left text-sm text-gray-700 hover:text-gray-900 flex items-center gap-2">
+                      <span>Setup your requirement management tool</span>
+                      <Info size={14} className="text-gray-400" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+              <button
+                onClick={() => setShowEditTestCase(false)}
+                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateTestCase}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Update
               </button>
             </div>
           </div>
@@ -789,4 +925,4 @@ export const TestCase = () => {
       )}
     </div>
   );
-}
+};

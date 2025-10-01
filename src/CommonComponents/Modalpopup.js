@@ -18,40 +18,53 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-// The new reusable component
-export const Modalpopup = ({ open, onClose }) => {
+// The component now accepts 'open', 'onClose', 'buttons', and 'width' as props
+export const Modalpopup = ({
+  header,
+  content,
+  open,
+  onClose,
+  buttons,
+  width,
+  height,
+}) => {
   return (
-    <BootstrapDialog
-      onClose={onClose}
-      aria-labelledby="customized-dialog-title"
-      open={open}
-    >
-      <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-        Add Widget
-      </DialogTitle>
-      <IconButton
-        aria-label="close"
-        onClick={onClose}
-        sx={(theme) => ({
-          position: "absolute",
-          right: 8,
-          top: 8,
-          color: theme.palette.grey[500],
-        })}
+    <React.Fragment>
+      <BootstrapDialog
+        onClose={onClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
+        sx={{
+          "& .MuiPaper-root": {
+            width: width,
+            maxWidth: "800px",
+            height: height,
+            maxHeight: "800px",
+          },
+        }} // Corrected syntax
       >
-        <CloseIcon />
-      </IconButton>
-      <DialogContent dividers>
-        <Typography gutterBottom>
-          You can add your custom content here.
-        </Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button autoFocus onClick={onClose}>
-          Cancel
-        </Button>
-        <Button onClick={onClose}>Add</Button>
-      </DialogActions>
-    </BootstrapDialog>
+        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          {header}
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={(theme) => ({
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: theme.palette.grey[500],
+          })}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent dividers>
+          <Typography gutterBottom>{content}</Typography>
+        </DialogContent>
+        <DialogActions>
+          {buttons} {/* Correctly render the buttons prop here */}
+        </DialogActions>
+      </BootstrapDialog>
+    </React.Fragment>
   );
 };

@@ -16,7 +16,7 @@ import { CreateTestCase } from "./Components/CreateTestCases/CreateTestCase";
 const menuItems = [
   {
     name: "Project Insights",
-    icon: "mdi:view-dashboard",
+    icon: "uis:graph-bar",
     path: "/project-insights",
   },
   { name: "Test Cases", icon: "mdi:clipboard-list", path: "/test-cases" },
@@ -48,7 +48,7 @@ export const App = () => {
             <Route path="/test-plans" element={<TestPlan />} />
             <Route path="/reports" element={<Report />} />
             <Route path="/create-test-cases" element={<CreateTestCase />} />
-            <Route path="*" element={<ProjectInsight />} />{" "}
+            <Route path="*" element={<ProjectInsight />} />
             {/* default route */}
           </Routes>
         </div>

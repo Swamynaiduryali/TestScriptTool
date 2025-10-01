@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Table, MoreVertical, Edit } from 'lucide-react';
 
-  export const TestCase = () => {
+export const TestCase = () => {
   const [activeTab, setActiveTab] = useState('repository');
   const [showCreateFolder, setShowCreateFolder] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
@@ -15,6 +15,18 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
   const [selectedFolder, setSelectedFolder] = useState('Authentication');
   const [showEditTestCase, setShowEditTestCase] = useState(false);
   const [editingTestCase, setEditingTestCase] = useState(null);
+  const [newTestCaseTitle, setNewTestCaseTitle] = useState('');
+  const [newTestCaseFolder, setNewTestCaseFolder] = useState('');
+  const [newTestCaseDescription, setNewTestCaseDescription] = useState('');
+  const [editedTitle, setEditedTitle] = useState('');
+  const [editedDescription, setEditedDescription] = useState('');
+  const [editedPreconditions, setEditedPreconditions] = useState('');
+  const [editedOwner, setEditedOwner] = useState('Myself (Lucky Ind)');
+  const [editedState, setEditedState] = useState('Active');
+  const [editedPriority, setEditedPriority] = useState('Medium');
+  const [editedType, setEditedType] = useState('Other');
+  const [editedAutomationStatus, setEditedAutomationStatus] = useState('Not Automated');
+  const [editedTags, setEditedTags] = useState('');
 
   const [testCases, setTestCases] = useState([
     { id: 'TC-103', title: 'testmo', folder: 'Authentication' },
@@ -23,7 +35,7 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
     { id: 'TC-2', title: 'Ensure that the user is redirected to the correct landing page after successful authenticati...', folder: 'Authentication' }
   ]);
 
-  const folders = [
+  const [folders, setFolders] = useState([
     { name: 'Authentication', count: 4, subCount: 12, subfolders: [
       { name: 'Login', count: 2, subCount: 6 },
       { name: 'Logout', count: 2, subCount: 2 }
@@ -40,7 +52,7 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
     { name: 'Usability', count: 17, subCount: 17 },
     { name: 'Performance', count: 14, subCount: 14 },
     { name: 'Security', count: 6, subCount: 6 }
-  ];
+  ]);
 
   const toggleFolder = (folderName) => {
     setExpandedFolders(prev => ({
@@ -51,10 +63,18 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
 
   const handleCreateFolder = () => {
     if (folderName.trim()) {
-      alert(`Folder "${folderName}" created successfully!`);
+      // Add new folder to the folders array
+      const newFolder = {
+        name: folderName,
+        count: 0,
+        subCount: 0
+      };
+      
+      setFolders([...folders, newFolder]);
       setFolderName('');
       setFolderDescription('');
       setShowCreateFolder(false);
+      setSelectedFolder(folderName); // Select the newly created folder
     }
   };
 
@@ -63,8 +83,39 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
   };
 
   const handleCreateTestCase = () => {
-    alert('Test case creation functionality would be implemented here');
-    setShowCreateTestCase(false);
+    if (newTestCaseTitle.trim()) {
+      // Generate new test case ID
+      const newId = `TC-${testCases.length + 1}`;
+      const folderToUse = newTestCaseFolder || selectedFolder;
+      
+      const newTestCase = {
+        id: newId,
+        title: newTestCaseTitle,
+        folder: folderToUse
+      };
+      
+      // Add new test case to the array
+      setTestCases([...testCases, newTestCase]);
+      
+      // Update folder count
+      setFolders(folders.map(folder => {
+        if (folder.name === folderToUse) {
+          return {
+            ...folder,
+            count: folder.count + 1,
+            subCount: folder.subCount + 1
+          };
+        }
+        return folder;
+      }));
+      
+      // Reset form and close modal
+      setNewTestCaseTitle('');
+      setNewTestCaseFolder('');
+      setNewTestCaseDescription('');
+      setShowCreateTestCase(false);
+      setSelectedFolder(folderToUse); // Switch to the folder containing the new test case
+    }
   };
 
   const handleFolderClick = (folderName) => {
@@ -73,13 +124,31 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
 
   const handleEditTestCase = (testCase) => {
     setEditingTestCase(testCase);
+    setEditedTitle(testCase.title);
+    setEditedDescription('');
+    setEditedPreconditions('');
+    setEditedOwner('Myself (Lucky Ind)');
+    setEditedState('Active');
+    setEditedPriority('Medium');
+    setEditedType('Other');
+    setEditedAutomationStatus('Not Automated');
+    setEditedTags('');
     setShowEditTestCase(true);
   };
 
   const handleUpdateTestCase = () => {
-    alert('Test case updated successfully!');
-    setShowEditTestCase(false);
-    setEditingTestCase(null);
+    if (editedTitle.trim()) {
+      // Update the test case in the state
+      setTestCases(testCases.map(tc => 
+        tc.id === editingTestCase.id 
+          ? { ...tc, title: editedTitle }
+          : tc
+      ));
+      
+      // Close modal and reset
+      setShowEditTestCase(false);
+      setEditingTestCase(null);
+    }
   };
 
   const getFilteredTestCases = () => {
@@ -668,7 +737,12 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
           <div className="bg-white rounded-lg w-full max-w-2xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">Create Test Case</h2>
-              <button onClick={() => setShowCreateTestCase(false)}>
+              <button onClick={() => {
+                setShowCreateTestCase(false);
+                setNewTestCaseTitle('');
+                setNewTestCaseFolder('');
+                setNewTestCaseDescription('');
+              }}>
                 <X size={24} className="text-gray-400 hover:text-gray-600" />
               </button>
             </div>
@@ -679,17 +753,23 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                 <input
                   type="text"
                   placeholder="Enter test case title"
+                  value={newTestCaseTitle}
+                  onChange={(e) => setNewTestCaseTitle(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-2">Folder</label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                  <option>Select Folder</option>
-                  <option>Authentication</option>
-                  <option>Administration</option>
-                  <option>Configuration</option>
+                <select 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  value={newTestCaseFolder}
+                  onChange={(e) => setNewTestCaseFolder(e.target.value)}
+                >
+                  <option value="">Select Folder (Default: {selectedFolder})</option>
+                  {folders.map((folder, idx) => (
+                    <option key={idx} value={folder.name}>{folder.name}</option>
+                  ))}
                 </select>
               </div>
 
@@ -698,6 +778,8 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                 <textarea
                   placeholder="Enter test case description"
                   rows={4}
+                  value={newTestCaseDescription}
+                  onChange={(e) => setNewTestCaseDescription(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -705,14 +787,24 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
 
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => setShowCreateTestCase(false)}
+                onClick={() => {
+                  setShowCreateTestCase(false);
+                  setNewTestCaseTitle('');
+                  setNewTestCaseFolder('');
+                  setNewTestCaseDescription('');
+                }}
                 className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateTestCase}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={!newTestCaseTitle.trim()}
+                className={`px-4 py-2 rounded-lg ${
+                  newTestCaseTitle.trim() 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
               >
                 Create
               </button>
@@ -727,7 +819,10 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
           <div className="bg-white rounded-lg w-full max-w-6xl h-5/6 flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h2 className="text-xl font-semibold">Edit Test Case</h2>
-              <button onClick={() => setShowEditTestCase(false)}>
+              <button onClick={() => {
+                setShowEditTestCase(false);
+                setEditingTestCase(null);
+              }}>
                 <X size={24} className="text-gray-400 hover:text-gray-600" />
               </button>
             </div>
@@ -743,7 +838,8 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     <div className="flex gap-2">
                       <input
                         type="text"
-                        defaultValue={editingTestCase.title}
+                        value={editedTitle}
+                        onChange={(e) => setEditedTitle(e.target.value)}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <button className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200">
@@ -752,7 +848,7 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     </div>
                     <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
                       <span>📁</span>
-                      <span>Authentication</span>
+                      <span>{editingTestCase.folder}</span>
                     </div>
                   </div>
 
@@ -770,6 +866,8 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     <textarea
                       placeholder="Write in brief about the test"
                       rows={6}
+                      value={editedDescription}
+                      onChange={(e) => setEditedDescription(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -779,6 +877,8 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     <textarea
                       placeholder="Define any preconditions about the test"
                       rows={6}
+                      value={editedPreconditions}
+                      onChange={(e) => setEditedPreconditions(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -834,8 +934,14 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     <label className="block text-sm font-medium mb-2">
                       Owner <span className="text-red-500">*</span>
                     </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <select 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      value={editedOwner}
+                      onChange={(e) => setEditedOwner(e.target.value)}
+                    >
                       <option>Myself (Lucky Ind)</option>
+                      <option>Team Member 1</option>
+                      <option>Team Member 2</option>
                     </select>
                   </div>
 
@@ -843,8 +949,12 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     <label className="block text-sm font-medium mb-2">
                       State <span className="text-red-500">*</span>
                     </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                      <option>✓ Active</option>
+                    <select 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      value={editedState}
+                      onChange={(e) => setEditedState(e.target.value)}
+                    >
+                      <option>Active</option>
                       <option>Draft</option>
                       <option>Deprecated</option>
                     </select>
@@ -854,8 +964,12 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     <label className="block text-sm font-medium mb-2">
                       Priority <span className="text-red-500">*</span>
                     </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                      <option>— Medium</option>
+                    <select 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      value={editedPriority}
+                      onChange={(e) => setEditedPriority(e.target.value)}
+                    >
+                      <option>Medium</option>
                       <option>High</option>
                       <option>Low</option>
                       <option>Critical</option>
@@ -866,7 +980,11 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     <label className="block text-sm font-medium mb-2">
                       Type of Test Case <span className="text-red-500">*</span>
                     </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <select 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      value={editedType}
+                      onChange={(e) => setEditedType(e.target.value)}
+                    >
                       <option>Other</option>
                       <option>Functional</option>
                       <option>Performance</option>
@@ -878,7 +996,11 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     <label className="block text-sm font-medium mb-2">
                       Automation Status <span className="text-red-500">*</span>
                     </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <select 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      value={editedAutomationStatus}
+                      onChange={(e) => setEditedAutomationStatus(e.target.value)}
+                    >
                       <option>Not Automated</option>
                       <option>Automated</option>
                       <option>Planned</option>
@@ -892,6 +1014,8 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
                     <input
                       type="text"
                       placeholder="Add tags and hit ⏎"
+                      value={editedTags}
+                      onChange={(e) => setEditedTags(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -908,14 +1032,22 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
 
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
               <button
-                onClick={() => setShowEditTestCase(false)}
+                onClick={() => {
+                  setShowEditTestCase(false);
+                  setEditingTestCase(null);
+                }}
                 className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUpdateTestCase}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={!editedTitle.trim()}
+                className={`px-6 py-2 rounded-lg ${
+                  editedTitle.trim() 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
               >
                 Update
               </button>
@@ -926,3 +1058,4 @@ import { Search, Filter, Download, Plus, X, ChevronRight, ChevronDown, Info, Tab
     </div>
   );
 };
+

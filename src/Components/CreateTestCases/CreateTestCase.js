@@ -11,6 +11,11 @@ const CreateTestCaseComponent = () => {
   const [editMenuOpen, setEditMenuOpen] = useState(false);
   const [newField, setNewField] = useState({ name: "", type: "String", placeholder: "" });
   const [editField, setEditField] = useState({ id: null, name: "", values: [], projects: "", defaultValue: "" });
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(null);
+  const [selectedProjects, setSelectedProjects] = useState([]);
+  const [projectSearch, setProjectSearch] = useState("");
+  const [applyToFuture, setApplyToFuture] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -67,6 +72,14 @@ const CreateTestCaseComponent = () => {
       defaultValue: "Active",
     },
   ]);
+
+  const projects = [
+    { id: "P001", title: "Project Alpha" },
+    { id: "P002", title: "Beta Project" },
+    { id: "P003", title: "Gamma Initiative" },
+    { id: "P004", title: "Delta Task" },
+    // Add more projects as needed for testing
+  ];
 
   const priorityOptions = [
     { value: "Critical", label: "! Critical" },
@@ -299,16 +312,65 @@ const CreateTestCaseComponent = () => {
   };
 
   const handleProjectsClick = (value) => {
-    setEditField((prev) => ({
-      ...prev,
-      projects: prev.projects === "All Projects" ? "0 Projects" : "All Projects",
-    }));
+    const field = testCaseFields.find((f) => f.id === editField.id);
+    if (field) {
+      setSelectedValue(value);
+      setSelectedProjects(field.projects === "All Projects" ? projects.map(p => p.id) : []);
+      setIsProjectModalOpen(true);
+    }
+  };
+
+  const handleProjectSelection = (projectId) => {
+    setSelectedProjects((prev) =>
+      prev.includes(projectId)
+        ? prev.filter((id) => id !== projectId)
+        : [...prev, projectId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    setSelectedProjects(projects.map((p) => p.id));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedProjects([]);
+  };
+
+  const handleUpdateProjects = () => {
+    if (selectedProjects.length === 0 && !applyToFuture) {
+      alert("Please select at least one project or enable 'Apply to All Future Projects'.");
+      return;
+    }
+    const field = testCaseFields.find((f) => f.id === editField.id);
+    if (field && selectedValue) {
+      setTestCaseFields((prev) =>
+        prev.map((f) =>
+          f.id === field.id
+            ? {
+                ...f,
+                values: f.values.map((v) =>
+                  v === selectedValue ? (selectedProjects.length > 0 ? selectedProjects.join(", ") : "0 Projects") : v
+                ),
+                projects: selectedProjects.length > 0 ? selectedProjects.join(", ") : "0 Projects",
+              }
+            : f
+        )
+      );
+      setIsProjectModalOpen(false);
+      alert("Project assignments updated successfully!");
+    }
   };
 
   const filteredFields = testCaseFields.filter(
     (field) =>
       field.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       field.values.join(",").toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredProjects = projects.filter(
+    (p) =>
+      p.id.toLowerCase().includes(projectSearch.toLowerCase()) ||
+      p.title.toLowerCase().includes(projectSearch.toLowerCase())
   );
 
   if (!isVisible) {
@@ -411,7 +473,22 @@ const CreateTestCaseComponent = () => {
                                 <div className="text-sm text-gray-500 mt-1">{field.values.join(", ")}</div>
                               </div>
                             </td>
-                            <td className="py-4 px-6">{field.projects}</td>
+                            <td className="py-4 px-6">
+                              {field.projects === "All Projects" ? (
+                                <a
+                                  href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleProjectsClick(field.values[0]);
+                                  }}
+                                  className="text-blue-500 hover:text-blue-700 underline"
+                                >
+                                  All Projects
+                                </a>
+                              ) : (
+                                field.projects
+                              )}
+                            </td>
                             <td className="py-4 px-6">
                               <span
                                 className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -636,6 +713,105 @@ const CreateTestCaseComponent = () => {
                       className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                     >
                       Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            {isProjectModalOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-labelledby="project-modal-title">
+                <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 p-6 max-h-[90vh] flex flex-col">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 id="project-modal-title" className="text-xl font-semibold text-gray-800">Value</h2>
+                    <button onClick={() => setIsProjectModalOpen(false)} className="text-gray-600 hover:text-gray-800" aria-label="Close">
+                      ✖
+                    </button>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm mb-1">Value</label>
+                    <input
+                      type="text"
+                      value={selectedValue || ""}
+                      readOnly
+                      className="w-full border rounded-md p-2 bg-gray-200 text-gray-700"
+                      aria-readonly="true"
+                    />
+                  </div>
+                  <div className="mb-4 text-sm text-gray-600">Selected Projects: {selectedProjects.length} Projects</div>
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={applyToFuture}
+                        onChange={(e) => setApplyToFuture(e.target.checked)}
+                        className="h-4 w-4 text-blue-500 focus:ring-blue-500"
+                        id="apply-future"
+                        aria-labelledby="apply-future-label"
+                      />
+                      <label htmlFor="apply-future" id="apply-future-label" className="text-sm">
+                        Apply to All Future Projects
+                      </label>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">This option allows you to use this value to all future projects</p>
+                  </div>
+                  <div className="mb-4 relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                    <input
+                      type="text"
+                      placeholder="Search projects by title/ID"
+                      value={projectSearch}
+                      onChange={(e) => setProjectSearch(e.target.value)}
+                      className="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      aria-label="Search projects"
+                    />
+                  </div>
+                  <div className="flex-1 overflow-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b bg-gray-50">
+                          <th className="text-left py-2 px-4">ID</th>
+                          <th className="text-left py-2 px-4">TITLE</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredProjects.map((project) => (
+                          <tr
+                            key={project.id}
+                            className={`border-b hover:bg-gray-50 ${selectedProjects.includes(project.id) ? "bg-gray-100" : ""}`}
+                          >
+                            <td className="py-2 px-4">
+                              <input
+                                type="checkbox"
+                                checked={selectedProjects.includes(project.id)}
+                                onChange={() => handleProjectSelection(project.id)}
+                                className="h-4 w-4 text-blue-500 focus:ring-blue-500"
+                                aria-label={`Select project ${project.title}`}
+                              />
+                            </td>
+                            <td className="py-2 px-4">{project.id}</td>
+                            <td className="py-2 px-4">{project.title}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {filteredProjects.length === 0 && (
+                      <div className="text-center text-gray-500 py-4">No projects match your search.</div>
+                    )}
+                  </div>
+                  <div className="flex justify-end gap-2 mt-4">
+                    <button
+                      onClick={() => setIsProjectModalOpen(false)}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                      aria-label="Cancel"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleUpdateProjects}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                      aria-label="Update"
+                    >
+                      Update
                     </button>
                   </div>
                 </div>

@@ -1,7 +1,7 @@
-// Graph.js
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Modalpopup } from "../../CommonComponents/Modalpopup";
+import { WidgetDetails } from "../../CommonComponents/WidgetDetails";
 
 const widgetData = [
   {
@@ -30,81 +30,167 @@ export const Graph = ({ open, onClose }) => {
   const [search, setSearch] = useState("");
   const [selectedWidget, setSelectedWidget] = useState(null);
 
-  const filteredWidgets = widgetData.filter((w) =>
-    w.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const Buttons = () => {
+    return (
+      <div className="flex gap-2">
+        <button className="border border-gray-400 bg-white rounded-md p-1 text-black">
+          Back
+        </button>
+        <button className="border border-gray-400 bg-blue-400 rounded-md p-1 text-white">
+          Save
+        </button>
+      </div>
+    );
+  };
 
   return (
-    <>
-      <Modalpopup
-        header="Add Widget"
-        open={open}
-        onClose={onClose}
-        width="900px"
-        height="600px"
-        content={
-          <div className="flex flex-col gap-4">
-            {/* Search */}
-            <div className="flex gap-2 items-center border border-gray-400 rounded-md p-2 w-64">
+    <Modalpopup
+      header={
+        selectedWidget ? (
+          <div className="flex items-center gap-1">
+            <Icon
+              icon="mdi:arrow-left"
+              className="cursor-pointer"
+              onClick={() => setSelectedWidget(null)}
+            />
+            {selectedWidget.title}
+          </div>
+        ) : (
+          "Add widget"
+        )
+      }
+      open={open}
+      onClose={() => {
+        // setSelectedWidget(null);
+        onClose();
+      }}
+      content={
+        selectedWidget ? (
+          <WidgetDetails />
+        ) : (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center border border-gray-400 gap-2 p-2 w-60 focus-within:border-blue-400 focus-within:border-2 rounded-md">
               <Icon icon="material-symbols:search-rounded" />
               <input
                 type="text"
-                placeholder="Search by widget name"
-                className="outline-none"
+                className="outline-none text-xs"
+                placeholder="Search widget by name"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-
-            {/* Widgets Grid */}
-            <div>
-              <div className="grid grid-cols-4 gap-4 pr-2">
-                {filteredWidgets.map((w, i) => (
-                  <div
-                    className="flex flex-col gap-2"
-                    onClick={() => setSelectedWidget(w)}
-                  >
+            <div className="grid grid-cols-4 gap-4">
+              {widgetData
+                .filter((widget) =>
+                  widget.title.toLowerCase().includes(search.toLowerCase())
+                )
+                .map((widget, index) => {
+                  const { img, title, desc } = widget;
+                  return (
                     <div
-                      key={i}
-                      className="border rounded-md p-4 flex flex-col gap-2 cursor-pointer hover:shadow-md transition"
+                      key={index}
+                      className="flex flex-col gap-2 cursor-pointer"
+                      onClick={() => setSelectedWidget(widget)}
                     >
-                      <img
-                        src={w.img}
-                        alt={w.title}
-                        className="h-20 object-contain"
-                      />
+                      <div className="border rounded-md p-4 hover:shadow-md transition">
+                        <img
+                          src={img}
+                          alt={title}
+                          className="h-20 object-contain"
+                        />
+                      </div>
+                      <div>
+                        <h1 className="font-semibold text-xs">{title}</h1>
+                        <p className="text-xs">{desc}</p>
+                      </div>
                     </div>
-                    <div className="bg-transparent">
-                      <h3 className="font-semibold text-xs">{w.title}</h3>
-                      <p className="text-xs text-gray-600">{w.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  );
+                })}
             </div>
           </div>
-        }
-      />
-
-      {selectedWidget && (
-        <Modalpopup
-          header={selectedWidget.title} // use widget title
-          open={!!selectedWidget}
-          onClose={() => setSelectedWidget(null)}
-          width="500px"
-          height="400px"
-          content={
-            <div>
-              <p>{selectedWidget.desc}</p>
-              <img
-                src={selectedWidget.img}
-                alt={selectedWidget.title}
-                className="h-40 object-contain"
-              />
-            </div>
-          }
-        />
-      )}
-    </>
+        )
+      }
+      height="600px"
+      width="900px"
+      buttons={selectedWidget && <Buttons />}
+      padding={selectedWidget ? "0px" : "16px"}
+    ></Modalpopup>
   );
+
+  // const [search, setSearch] = useState("");
+  // const [selectedWidget, setSelectedWidget] = useState(null);
+  // const filteredWidgets = widgetData.filter((w) =>
+  //   w.title.toLowerCase().includes(search.toLowerCase())
+  // );
+  // return (
+  //   <Modalpopup
+  //     header={
+  //       selectedWidget ? (
+  //         <div
+  //           className="flex items-center gap-2 cursor-pointer"
+  //           onClick={() => setSelectedWidget(null)}
+  //         >
+  //           <Icon icon="mdi:arrow-left" />
+  //           <span>{selectedWidget.title}</span>
+  //         </div>
+  //       ) : (
+  //         "Add Widget"
+  //       )
+  //     }
+  //     open={open}
+  //     onClose={onClose}
+  //     width={selectedWidget ? "900px" : "900px"}
+  //     height={selectedWidget ? "600px" : "600px"}
+  //     content={
+  //       selectedWidget ? (
+  //         // Single widget view
+  //         <div className="flex flex-col gap-4 items-center justify-center">
+  //           <img
+  //             src={selectedWidget.img}
+  //             alt={selectedWidget.title}
+  //             className="h-40 object-contain"
+  //           />
+  //           <p className="text-gray-700 text-center">{selectedWidget.desc}</p>
+  //         </div>
+  //       ) : (
+  //         // Grid + search view
+  //         <div className="flex flex-col gap-4">
+  //           {/* Search */}
+  //           <div className="flex gap-2 items-center border border-gray-400 rounded-md p-2 w-64 focus-within:border-blue-400 focus-within:border-2">
+  //             <Icon icon="material-symbols:search-rounded" />
+  //             <input
+  //               type="text"
+  //               placeholder="Search by widget name"
+  //               className="outline-none"
+  //               value={search}
+  //               onChange={(e) => setSearch(e.target.value)}
+  //             />
+  //           </div>
+  //           {/* Widgets Grid */}
+  //           <div className="grid grid-cols-4 gap-4 pr-2">
+  //             {filteredWidgets.map((w, i) => (
+  //               <div
+  //                 key={i}
+  //                 className="flex flex-col gap-2 cursor-pointer"
+  //                 onClick={() => setSelectedWidget(w)}
+  //               >
+  //                 <div className="border rounded-md p-4 flex flex-col gap-2 hover:shadow-md transition">
+  //                   <img
+  //                     src={w.img}
+  //                     alt={w.title}
+  //                     className="h-20 object-contain"
+  //                   />
+  //                 </div>
+  //                 <div>
+  //                   <h3 className="font-semibold text-xs">{w.title}</h3>
+  //                   <p className="text-xs text-gray-600">{w.desc}</p>
+  //                 </div>
+  //               </div>
+  //             ))}
+  //           </div>
+  //         </div>
+  //       )
+  //     }
+  //   />
+  // );
 };

@@ -10,9 +10,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialogContent-root": {
-    padding: theme.spacing(2),
-  },
+  // "& .MuiDialogContent-root": {
+  //   padding: theme.spacing(2),
+  // },
   "& .MuiDialogActions-root": {
     padding: theme.spacing(1),
   },
@@ -27,7 +27,9 @@ export const Modalpopup = ({
   buttons,
   width,
   height,
+  padding,
 }) => {
+  console.log(padding);
   return (
     <React.Fragment>
       <BootstrapDialog
@@ -58,12 +60,14 @@ export const Modalpopup = ({
         >
           <CloseIcon />
         </IconButton>
-        <DialogContent dividers>
+        <DialogContent sx={{ padding: padding }} dividers>
           <Typography gutterBottom>{content}</Typography>
         </DialogContent>
-        <DialogActions>
-          {buttons} {/* Correctly render the buttons prop here */}
-        </DialogActions>
+        {buttons && (
+          <DialogActions>
+            {buttons} {/* Correctly render the buttons prop here */}
+          </DialogActions>
+        )}
       </BootstrapDialog>
     </React.Fragment>
   );

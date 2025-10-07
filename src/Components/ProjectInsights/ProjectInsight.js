@@ -16,8 +16,8 @@ export const ProjectInsight = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="bg-white">
-        <div className="flex justify-between px-4 pt-3">
+      <div className="bg-white sticky top-0 z-10">
+        <div className="flex justify-between px-4 pt-3 ">
           <h1 className="font-bold">Project Insights</h1>
           <div className="relative">
             <button
